@@ -117,6 +117,8 @@ class LoginComponent extends Component {
       console.log("passwords don't match");
     }
 
+    this.setState( {newUserEmailValid: 'NA'} )
+    this.setState( {newUserNameValid: 'NA'} )
     if( validEmail && validUserName && validPassword && passwordsMatch ){
       console.log("Valid create inputs.  Make call to mkae user")
       fetchCall = 'http://127.0.0.1:8888/PHPTA/createUser.php?newUser=' + this.state.newUserName + '&email=' + this.state.newUserEmail + '&userPassword=' + this.state.newUserpassword1
@@ -124,8 +126,15 @@ class LoginComponent extends Component {
         .then((response) => response.json())
         .then((responseJson) => {
           console.log("Local Host PHP API Returned!")
-          this.setState( {renderState: 'userCreationSucesful'} )
           console.log(responseJson)
+          if( responseJson == "Email Already exists"){
+            this.setState( {newUserEmailValid: 'EmailAlreadyExists'} )
+          } else
+          if( responseJson == "User Name Taken"){
+            this.setState( {newUserNameValid: 'UserNameTaken'} )
+          } else {
+            this.setState( {renderState: 'userCreationSucesful'} )
+          }
         })
         .catch((error) => {
           console.log("Local Host PHP API Error!")
@@ -137,12 +146,12 @@ class LoginComponent extends Component {
   // *************************************************
   // Login handlers
   handleEmail = (text) => {
-    console.log("******** Input Value:" + text)
+    //console.log("******** Input Value:" + text)
     this.setState({ emailInput: text })
   }
 
   handlePassword = (text) => {
-    console.log("******** Input Value:" + text)
+    //console.log("******** Input Value:" + text)
     this.setState({ loginPassword: text })
   }
   //***************************************************
@@ -150,22 +159,22 @@ class LoginComponent extends Component {
   //***************************************************
   // Create User handlers
   handleNewUserEmail = (text) => {
-    console.log("******** Input Value:" + text)
+    //console.log("******** Input Value:" + text)
     this.setState({ newUserEmail: text })
   }
 
   handleNewUserName = (text) => {
-    console.log("******** Input Value:" + text)
+    //console.log("******** Input Value:" + text)
     this.setState({ newUserName: text })
   }
 
   handleNewUserPassword1 = (text) => {
-    console.log("******** Input Value:" + text)
+    //console.log("******** Input Value:" + text)
     this.setState({ newUserpassword1: text })
   }
 
   handleNewUserPassword2 = (text) => {
-    console.log("******** Input Value:" + text)
+    //console.log("******** Input Value:" + text)
     this.setState({ newUserpassword2: text })
   }
   //***************************************************
@@ -213,10 +222,14 @@ class LoginComponent extends Component {
     this.setState( {loginSucceed: 'NA'} )
     this.setState( {newUserEmailValid: 'NA'} )
     this.setState( {newUserNameValid: 'NA'} )
-    this._emalNewUserInput.setNativeProps({text: ''});
-    this._nameNewUserInput.setNativeProps({text: ''});
-    this._password1NewUserInput.setNativeProps({text: ''});
-    this._password2NewUserInput.setNativeProps({text: ''});
+    if( this._emalNewUserInput != null)
+      this._emalNewUserInput.setNativeProps({text: ''});
+    if( this._nameNewUserInput != null)
+      this._nameNewUserInput.setNativeProps({text: ''});
+    if( this._password1NewUserInput != null)
+      this._password1NewUserInput.setNativeProps({text: ''});
+    if( this._password2NewUserInput != null )
+      this._password2NewUserInput.setNativeProps({text: ''});
     this.setState({ fadeAnim: new Animated.Value(1) },
       () => {
         Animated.timing(          // Animate over time
@@ -312,7 +325,17 @@ class LoginComponent extends Component {
               Invalid Email Format
             </Text>
           </View>
-        )}
+        )
+      }else
+      if (this.state.newUserEmailValid == 'EmailAlreadyExists'){
+        return (
+          <View style= {{ height: scale(15) }}>
+            <Text style={{ marginLeft: scale(25), color: 'red', fontWeight: '700', fontSize: scale(15) }} >
+              Email Already Exists
+            </Text>
+          </View>
+        )
+      }
     }
 
     renderNewUserNameError(){
@@ -323,7 +346,17 @@ class LoginComponent extends Component {
               Empty User Name Not Allowed
             </Text>
           </View>
-        )}
+        )
+      }else
+      if (this.state.newUserNameValid == 'UserNameTaken'){
+        return (
+          <View style= {{ height: scale(15), marginTop: scale(10), }}>
+            <Text style={{ marginLeft: scale(25), color: 'red', fontWeight: '700', fontSize: scale(15) }} >
+              User Name Already Taken
+            </Text>
+          </View>
+        )
+      }
     }
 
     renderNewUserPasswordError(){
@@ -473,7 +506,7 @@ class LoginComponent extends Component {
             </TouchableOpacity>
 
             <View style={{flexDirection: 'row', marginTop: scale(10)}} >
-              <TouchableOpacity onPress={this.setRenderSignIn } style={{ flex: 1 }} >
+              <TouchableOpacity onPress={ this.setRenderSignIn } style={{ flex: 1 }} >
                 <Text style={{ textAlign: 'center', color: 'white', fontWeight: '700', textDecorationLine: 'underline', fontSize: scale(15) }}>
                   Return to Sign In
                 </Text>
@@ -490,6 +523,22 @@ class LoginComponent extends Component {
 
             <View style={styles.imageContainer} >
               <Image source={require('../pictures/TravelLogo.png')} style={styles.image}/>
+            </View>
+
+            <View style={styles.newUserCard} onPress={this.createNewUser} >
+              <Text style={{ textAlign: 'center', color: 'black', fontWeight: '700', fontSize: scale(15) }}>
+                New User Creation Succesful {"\n"}
+                Welcome {this.state.newUserName}! {"\n"}
+                Login: {this.state.newUserEmail}
+              </Text>
+            </View>
+
+            <View style={{flexDirection: 'row', marginTop: scale(10)}} >
+              <TouchableOpacity onPress={ this.setRenderSignIn } style={{ flex: 1 }} >
+                <Text style={{ textAlign: 'center', color: 'white', fontWeight: '700', textDecorationLine: 'underline', fontSize: scale(15) }}>
+                  Return to Sign In
+                </Text>
+              </TouchableOpacity>
             </View>
 
           </Animated.View>
@@ -557,15 +606,6 @@ styles = StyleSheet.create({
     //marginBottom: scale(10),
     marginTop: scale(10),
   },
-  buttonSignUp:{
-    justifyContent: 'center',
-    backgroundColor: '#1a8cff',
-    height: verticalScale(40),
-    marginLeft: scale(25),
-    marginRight: scale(25),
-    //marginBottom: scale(10),
-    marginTop: scale(10),
-  },
   inputContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -582,6 +622,17 @@ styles = StyleSheet.create({
     color: 'grey',
     padding: scale(10),
   },
+  newUserCard:{
+    justifyContent: 'center',
+    backgroundColor: '#e8e6e4',
+    //height: verticalScale(40),
+    marginLeft: scale(25),
+    marginRight: scale(25),
+    //marginBottom: scale(10),
+    marginTop: scale(10),
+    paddingTop: scale(10),
+    paddingBottom: scale(10),
+  }
 });
 
 export default LoginComponent;

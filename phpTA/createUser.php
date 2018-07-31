@@ -12,31 +12,28 @@ $validUserToCreate = TRUE;
 
 //************************************************
 // Test that the password passed in is valid
-/*
 if(!empty($_POST["userPassword"]) ) {
     $password = test_input($_POST["userPassword"]);
     if (strlen($_POST["userPassword"]) <= '8') {
-        //$Err = "Your Password Must Contain At Least 8 Characters!";
-        $Err = "Invalid Password";
+        $Err = "Password Min Length 8";
         $validUserToCreate = FALSE;
     }
+    elseif(!preg_match("#[A-Z]+#",$password)) {
+        $Err = "Password must contain capital";
+        $validUserToCreate = FALSE;
+    }
+    elseif(!preg_match("#[a-z]+#",$password)) {
+        $Err = "Password must contain lower case";
+        $validUserToCreate = FALSE;
+    }
+    /*
     elseif(!preg_match("#[0-9]+#",$password)) {
         //$Err = "Your Password Must Contain At Least 1 Number!";
         $Err = "Invalid Password";
         $validUserToCreate = FALSE;
     }
-    elseif(!preg_match("#[A-Z]+#",$password)) {
-        //$Err = "Your Password Must Contain At Least 1 Capital Letter!";
-        $Err = "Invalid Password";
-        $validUserToCreate = FALSE;
-    }
-    elseif(!preg_match("#[a-z]+#",$password)) {
-        //$Err = "Your Password Must Contain At Least 1 Lowercase Letter!";
-        $Err = "Invalid Password";
-        $validUserToCreate = FALSE;
-    }
+    */
 }
-*/
 //************************************************
 
 //************************************************
@@ -48,15 +45,13 @@ $traveldata->setupDBVars();
 
 //************************************************
 // Test to see if the user name is already in the DB
-/* Commenting this out.  Will allow for duplicate user names in the system
 $sql = "SELECT * FROM Users WHERE userName='".$newUser ."'";
 $result = $traveldata->selectData($sql);
 error_log( "duplicatUsersInDB == " . $result->num_rows );
 if($result->num_rows>0){
     $validUserToCreate = FALSE;
-    $Err = "User Name Already exists";
+    $Err = "User Name Taken";
 }
-*/
 //************************************************
 
 //************************************************
